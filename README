@@ -1,7 +1,8 @@
 # newframework
 
-A long-term learning project: an original, compact C++23 tensor,
-automatic-differentiation, and neural-network framework. Conceptual destination:
+A long-term learning project: a C++20 tensor, automatic-differentiation, and neural-network framework. 
+
+Conceptual destination:
 
 **frontend → scheduler → lowering/code generation → execution**
 
@@ -17,8 +18,7 @@ indexing, metadata-only reshape, and exact-shape addition. Standard-library
 containers provide RAII and value semantics; no external dependencies or testing
 frameworks. No raw owning pointers or manual allocation management.
 
-Requires CMake 3.20+ and a compiler accepting C++23 (Clang or GCC); C++26 is not
-required. `float` must be IEEE 754 binary32, verified at compile time.
+Requires CMake 3.20+ and a compiler accepting C++20 (Clang or GCC); `float` must be IEEE 754 binary32, verified at compile time.
 
 ## Roadmap (not scaffolding)
 
@@ -36,17 +36,3 @@ required. `float` must be IEEE 754 binary32, verified at compile time.
 Deferred: broadcasting, views, autograd, expression templates, generic/multiple
 dtypes, GPU support, sparse tensors, distributed execution, plugins, and
 optimizations. No abstractions for hypothetical requirements.
-
-## Conceptual references
-
-Specifications and theory inform contracts, not copied implementations:
-
-- [Deep Learning Book](https://www.deeplearningbook.org/), Chapters 4 and 6:
-  numerical computation and feedforward networks.
-- [Baydin et al., Automatic Differentiation in Machine Learning](https://www.jmlr.org/papers/v18/17-468.html): AD and reverse mode.
-- [Python Array API Standard](https://data-apis.org/array-api/latest/): array semantics.
-- [NumPy broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html): future broadcasting rules.
-- [Netlib BLAS](https://www.netlib.org/blas/): future linear algebra conventions.
-- [tinygrad architecture](https://docs.tinygrad.org/developer/developer/): conceptual execution stages only.
-- [cppreference](https://en.cppreference.com/w/cpp) and the C++ standard: language
-  and standard-library behavior.
