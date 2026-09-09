@@ -1,6 +1,9 @@
 {
     "[cpp]": {
         "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+    },
+    "files.associations": {
+        ".clang-format": "yaml"
     }
 }
