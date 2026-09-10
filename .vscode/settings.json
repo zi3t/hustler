@@ -5,5 +5,6 @@
     },
     "files.associations": {
         ".clang-format": "yaml"
-    }
+    },
+    "clangd.arguments": ["--compile-commands-dir=build"]
 }
