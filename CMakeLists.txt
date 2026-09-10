@@ -14,7 +14,7 @@ target_sources(tensor
       include/hustler/tensor.hpp
 )
 
-target_compile_features(tensor PUBLIC cxx_std_23)
+target_compile_features(tensor PUBLIC cxx_std_20)
 
 
 add_executable(hustler src/main.cpp)
