@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 
@@ -33,6 +34,8 @@ int main() {
   SGD optimizer(0.1f);
   const Tensor training_inputs({0.0f, 1.0f, 2.0f, 3.0f}, {4, 1});
   const Tensor training_targets({1.0f, 3.0f, 5.0f, 7.0f}, {4, 1});
+  const float initial_loss =
+      mse.forward(layer.forward(training_inputs), training_targets);
 
   for (int iteration = 0; iteration < 200; ++iteration) {
     const Tensor prediction = layer.forward(training_inputs);
@@ -42,9 +45,13 @@ int main() {
   }
 
   const Tensor trained_prediction = layer.forward(training_inputs);
-  assert(mse.forward(trained_prediction, training_targets) < 0.0001f);
+  const float final_loss = mse.forward(trained_prediction, training_targets);
+  assert(final_loss < 0.0001f);
   assert(std::fabs(layer.weights().at({0, 0}) - 2.0f) < 0.01f);
   assert(std::fabs(layer.bias().at({0}) - 1.0f) < 0.01f);
+  std::cout << "Training complete: loss " << initial_loss << " -> "
+            << final_loss << ", weight=" << layer.weights().at({0, 0})
+            << ", bias=" << layer.bias().at({0}) << '\n';
 
   rejected = false;
   try {
