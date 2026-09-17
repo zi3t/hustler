@@ -1,5 +1,7 @@
 #include "hustler/tensor.hpp"
 
+#include <algorithm>
+#include <functional>
 #include <stdexcept>
 #include <utility>
 
@@ -39,4 +41,111 @@ float Tensor::at(const std::vector<std::size_t> &indices) const {
   }
 
   return values_[offset];
+}
+
+Tensor Tensor::operator+(const Tensor &other) const {
+  if (shape_ != other.shape_) {
+    throw std::invalid_argument("tensor shapes do not match");
+  }
+
+  std::vector<float> result(size());
+  std::transform(values_.begin(), values_.end(), other.values_.begin(),
+                 result.begin(), std::plus<>{});
+  return Tensor(std::move(result), shape_);
+}
+
+Tensor Tensor::operator*(const Tensor &other) const {
+  if (shape_ != other.shape_) {
+    throw std::invalid_argument("tensor shapes do not match");
+  }
+
+  std::vector<float> result(size());
+  std::transform(values_.begin(), values_.end(), other.values_.begin(),
+                 result.begin(), std::multiplies<>{});
+  return Tensor(std::move(result), shape_);
+}
+
+Tensor Tensor::operator*(float scalar) const {
+  std::vector<float> result(size());
+  std::transform(values_.begin(), values_.end(), result.begin(),
+                 [scalar](float value) { return value * scalar; });
+  return Tensor(std::move(result), shape_);
+}
+
+Tensor Tensor::matmul(const Tensor &other) const {
+  if (rank() != 2 || other.rank() != 2) {
+    throw std::invalid_argument("matmul requires rank-2 tensors");
+  }
+
+  const std::size_t rows = shape_[0];
+  const std::size_t shared = shape_[1];
+  const std::size_t columns = other.shape_[1];
+  if (shared != other.shape_[0]) {
+    throw std::invalid_argument("matmul inner dimensions do not match");
+  }
+
+  std::vector<float> result(rows * columns, 0.0f);
+
+  for (std::size_t row = 0; row < rows; ++row) {
+    for (std::size_t col = 0; col < columns; ++col) {
+      for (std::size_t k = 0; k < shared; ++k) {
+        result[row * columns + col] +=
+            values_[row * shared + k] * other.values_[k * columns + col];
+      }
+    }
+  }
+
+  return Tensor(std::move(result), {rows, columns});
+}
+
+Tensor Tensor::transpose() const {
+  if (rank() != 2) {
+    throw std::invalid_argument("transpose requires a rank-2 tensor");
+  }
+
+  const std::size_t rows = shape_[0];
+  const std::size_t columns = shape_[1];
+  std::vector<float> result(size());
+  for (std::size_t row = 0; row < rows; ++row) {
+    for (std::size_t column = 0; column < columns; ++column) {
+      result[column * rows + row] = values_[row * columns + column];
+    }
+  }
+
+  return Tensor(std::move(result), {columns, rows});
+}
+
+Tensor Tensor::add_rowwise(const Tensor &row) const {
+  if (rank() != 2 || row.rank() != 1 || shape_[1] != row.shape_[0]) {
+    throw std::invalid_argument(
+        "add_rowwise requires a matrix and a matching rank-1 row tensor");
+  }
+
+  std::vector<float> result(size());
+  for (std::size_t index = 0; index < size(); ++index) {
+    result[index] = values_[index] + row.values_[index % shape_[1]];
+  }
+  return Tensor(std::move(result), shape_);
+}
+
+Tensor Tensor::sum_rows() const {
+  if (rank() != 2) {
+    throw std::invalid_argument("sum_rows requires a rank-2 tensor");
+  }
+
+  const std::size_t rows = shape_[0];
+  const std::size_t columns = shape_[1];
+  std::vector<float> result(columns, 0.0f);
+  for (std::size_t row = 0; row < rows; ++row) {
+    for (std::size_t column = 0; column < columns; ++column) {
+      result[column] += values_[row * columns + column];
+    }
+  }
+  return Tensor(std::move(result), {columns});
+}
+
+Tensor Tensor::map(const std::function<float(float)> &function) const {
+  std::vector<float> result(size());
+  std::transform(values_.begin(), values_.end(), result.begin(), function);
+  return Tensor(std::move(result), shape_);
 }
