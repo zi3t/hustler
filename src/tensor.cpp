@@ -27,6 +27,8 @@ const std::vector<std::size_t> &Tensor::shape() const noexcept {
   return shape_;
 }
 
+const std::vector<float> &Tensor::values() const noexcept { return values_; }
+
 float Tensor::at(const std::vector<std::size_t> &indices) const {
   if (indices.size() != rank()) {
     throw std::out_of_range("index count does not match tensor rank");
@@ -51,6 +53,17 @@ Tensor Tensor::operator+(const Tensor &other) const {
   std::vector<float> result(size());
   std::transform(values_.begin(), values_.end(), other.values_.begin(),
                  result.begin(), std::plus<>{});
+  return Tensor(std::move(result), shape_);
+}
+
+Tensor Tensor::operator-(const Tensor &other) const {
+  if (shape_ != other.shape_) {
+    throw std::invalid_argument("tensor shapes do not match");
+  }
+
+  std::vector<float> result(size());
+  std::transform(values_.begin(), values_.end(), other.values_.begin(),
+                 result.begin(), std::minus<>{});
   return Tensor(std::move(result), shape_);
 }
 

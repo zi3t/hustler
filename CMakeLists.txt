@@ -5,13 +5,20 @@ project(hustler)
 add_library(tensor)
 
 target_sources(tensor
-  PRIVATE src/tensor.cpp
+  PRIVATE
+    src/dense_layer.cpp
+    src/loss.cpp
+    src/optimizer.cpp
+    src/tensor.cpp
   PUBLIC
     FILE_SET HEADERS
     BASE_DIRS
       include
     FILES
       include/hustler/tensor.hpp
+      include/hustler/dense_layer.hpp
+      include/hustler/loss.hpp
+      include/hustler/optimizer.hpp
 )
 
 target_compile_features(tensor PUBLIC cxx_std_20)

@@ -1,8 +1,12 @@
+#include "hustler/dense_layer.hpp"
+#include "hustler/loss.hpp"
+#include "hustler/optimizer.hpp"
 #include "hustler/tensor.hpp"
 
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <cmath>
 #include <stdexcept>
 #include <vector>
 
@@ -23,6 +27,24 @@ int main() {
     rejected = true;
   }
   assert(rejected);
+
+  DenseLayer layer(Tensor({0.0f}, {1, 1}), Tensor({0.0f}, {1}));
+  MeanSquaredError mse;
+  SGD optimizer(0.1f);
+  const Tensor training_inputs({0.0f, 1.0f, 2.0f, 3.0f}, {4, 1});
+  const Tensor training_targets({1.0f, 3.0f, 5.0f, 7.0f}, {4, 1});
+
+  for (int iteration = 0; iteration < 200; ++iteration) {
+    const Tensor prediction = layer.forward(training_inputs);
+    const Tensor gradient_output = mse.backward(prediction, training_targets);
+    (void)layer.backward(gradient_output);
+    optimizer.step(layer);
+  }
+
+  const Tensor trained_prediction = layer.forward(training_inputs);
+  assert(mse.forward(trained_prediction, training_targets) < 0.0001f);
+  assert(std::fabs(layer.weights().at({0, 0}) - 2.0f) < 0.01f);
+  assert(std::fabs(layer.bias().at({0}) - 1.0f) < 0.01f);
 
   rejected = false;
   try {

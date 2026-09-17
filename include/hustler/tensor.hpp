@@ -11,9 +11,11 @@ public:
   std::size_t rank() const noexcept;
   std::size_t size() const noexcept;
   const std::vector<std::size_t> &shape() const noexcept;
+  const std::vector<float> &values() const noexcept;
   float at(const std::vector<std::size_t> &indices) const;
 
   Tensor operator+(const Tensor &other) const;
+  Tensor operator-(const Tensor &other) const;
   Tensor operator*(const Tensor &other) const;
   Tensor operator*(float scalar) const;
   Tensor matmul(const Tensor &other) const;
